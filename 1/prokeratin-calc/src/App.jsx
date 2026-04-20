@@ -1,4 +1,5 @@
 import { useState, useMemo, useRef, useEffect } from "react";
+import LaunchTracker from "./LaunchTracker";
 
 // ─── Каталог: закупочная цена = цена ПРЕДСТАВИТЕЛЯ (Happy Hair) ───────────────
 // n=название, r=наша розница BYN (null=вводить руками), p=закупка ₽ ПРЕДСТАВИТЕЛЬ, b=бренд
@@ -337,10 +338,16 @@ let uid = 1;
 const newRow = () => ({id:uid++, productName:"", purchaseRub:null, retailByn:null});
 
 export default function App() {
+  const [currentView, setCurrentView] = useState("calculator"); // "calculator" или "tracker"
   const [rows, setRows] = useState([newRow(), newRow(), newRow()]);
   const [s, setS] = useState(DEF);
   const updS = (k,v) => setS(prev=>({...prev,[k]:v}));
   const updRow = (id, patch) => setRows(rs=>rs.map(r=>r.id===id?{...r,...patch}:r));
+
+  // Показываем трекер запусков
+  if (currentView === "tracker") {
+    return <LaunchTracker onBack={() => setCurrentView("calculator")} />;
+  }
 
   const th = (label, clr="#2a1a08") => (
     <th style={{padding:"7px 5px",fontSize:9,letterSpacing:1,textTransform:"uppercase",
@@ -353,22 +360,54 @@ export default function App() {
       {/* Header */}
       <div style={{background:"linear-gradient(135deg,#0a0400 0%,#180a00 100%)",
         borderBottom:"2px solid #7a4a00",padding:"16px 20px 12px"}}>
-        <div style={{fontSize:8,letterSpacing:5,color:"#3a2000",textTransform:"uppercase",marginBottom:4}}>
-          ProKeratin · Магазин
-        </div>
-        <div style={{display:"flex",alignItems:"baseline",gap:16,flexWrap:"wrap"}}>
-          <h1 style={{margin:0,fontSize:19,fontWeight:"normal",color:"#e0cc90",letterSpacing:1}}>
-            Калькулятор скидок
-          </h1>
-          <span style={{fontSize:10,color:"#4a2a00",fontStyle:"italic"}}>
-            Закупка = цена ПРЕДСТАВИТЕЛЯ · +НДС 20% · реальные накладные из P&L
-          </span>
-        </div>
-        <div style={{marginTop:8,display:"flex",gap:16,flexWrap:"wrap",fontSize:10}}>
-          {[["Брендов в каталоге","6"],["Товаров HH","100+ позиций"],
-            ["НДС ввозной","20%"],["Переменные накладные",fp(ohv(s)*100)]].map(([k,v])=>(
-            <div key={k}><span style={{color:"#2a1800"}}>{k}: </span><span style={{color:"#9a7020"}}>{v}</span></div>
-          ))}
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start"}}>
+          <div>
+            <div style={{fontSize:8,letterSpacing:5,color:"#3a2000",textTransform:"uppercase",marginBottom:4}}>
+              ProKeratin · Магазин
+            </div>
+            <div style={{display:"flex",alignItems:"baseline",gap:16,flexWrap:"wrap"}}>
+              <h1 style={{margin:0,fontSize:19,fontWeight:"normal",color:"#e0cc90",letterSpacing:1}}>
+                Калькулятор скидок
+              </h1>
+              <span style={{fontSize:10,color:"#4a2a00",fontStyle:"italic"}}>
+                Закупка = цена ПРЕДСТАВИТЕЛЯ · +НДС 20% · реальные накладные из P&L
+              </span>
+            </div>
+            <div style={{marginTop:8,display:"flex",gap:16,flexWrap:"wrap",fontSize:10}}>
+              {[["Брендов в каталоге","6"],["Товаров HH","100+ позиций"],
+                ["НДС ввозной","20%"],["Переменные накладные",fp(ohv(s)*100)]].map(([k,v])=>(
+                <div key={k}><span style={{color:"#2a1800"}}>{k}: </span><span style={{color:"#9a7020"}}>{v}</span></div>
+              ))}
+            </div>
+          </div>
+          <button 
+            onClick={() => setCurrentView("tracker")}
+            style={{
+              background:"linear-gradient(135deg, #2ecc71 0%, #27ae60 100%)",
+              border:"none",
+              borderRadius:8,
+              padding:"12px 20px",
+              color:"#fff",
+              fontSize:13,
+              fontWeight:"bold",
+              cursor:"pointer",
+              display:"flex",
+              alignItems:"center",
+              gap:8,
+              boxShadow:"0 4px 15px rgba(46,204,113,0.3)",
+              transition:"all 0.2s ease"
+            }}
+            onMouseEnter={e => {
+              e.currentTarget.style.transform = "translateY(-2px)";
+              e.currentTarget.style.boxShadow = "0 6px 20px rgba(46,204,113,0.4)";
+            }}
+            onMouseLeave={e => {
+              e.currentTarget.style.transform = "translateY(0)";
+              e.currentTarget.style.boxShadow = "0 4px 15px rgba(46,204,113,0.3)";
+            }}
+          >
+            📋 Трекер запусков
+          </button>
         </div>
       </div>
 
